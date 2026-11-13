@@ -1,0 +1,31 @@
+# 构建产物
+app/build/
+build/
+.gradle/
+.kotlin/
+
+# IDE
+.idea/
+*.iml
+*.hprof
+
+# 本机配置（不同机器路径不同，不要提交）
+local.properties
+
+# 签名材料（公开仓库不得包含私钥/口令）
+keystore/
+*.jks
+*.p12
+*.keystore
+
+# 交付二进制（请通过 GitHub Releases 分发）
+dist/
+
+# 逆向分析原始转储与提取物（含第三方应用内容，不随仓库分发）
+analysis/
+
+# 临时文件
+_tmp/
+*.log
+.DS_Store
+Thumbs.db

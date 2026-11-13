@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Material Design 3 官方基线色（dark baseline），不做品牌色定制 -->
+    <color name="m3_primary">#D0BCFF</color>
+    <color name="m3_background">#1C1B1F</color>
+    <color name="ic_launcher_background">#1C1B1F</color>
+</resources>

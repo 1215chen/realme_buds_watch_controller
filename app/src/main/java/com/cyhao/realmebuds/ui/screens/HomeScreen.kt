@@ -1,13 +1,31 @@
 ﻿package com.cyhao.realmebuds.ui.screens
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import kotlin.math.abs
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -17,6 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -24,9 +43,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
-import androidx.wear.compose.material3.Card
-import androidx.wear.compose.material3.CircularProgressIndicator
+import androidx.wear.compose.material3.Button
+import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.MaterialTheme
@@ -39,21 +59,21 @@ import com.cyhao.realmebuds.data.AncMode
 import com.cyhao.realmebuds.data.BudsState
 import com.cyhao.realmebuds.data.BudsViewModel
 import com.cyhao.realmebuds.data.ConnectionState
-import com.cyhao.realmebuds.data.defaultGestures
 import com.cyhao.realmebuds.data.labelRes
-import com.cyhao.realmebuds.ui.components.BatterySummary
+import com.cyhao.realmebuds.ui.components.BatteryRings
 import com.cyhao.realmebuds.ui.components.ConnectionStatusRow
-import com.cyhao.realmebuds.ui.components.WearListButton
+import com.cyhao.realmebuds.ui.components.WearNavRow
 import com.cyhao.realmebuds.ui.components.WearSectionHeader
 import com.cyhao.realmebuds.ui.components.WearSwitchRow
+import com.cyhao.realmebuds.ui.theme.ConnectedGreen
 import kotlinx.coroutines.delay
 
 /** 「查找耳机」反馈时长（毫秒）。 */
 private const val FindBudsFeedbackMillis = 3_000L
 
 /**
- * 主页：设备状态卡 + 功能入口。
- * 未连接时首行提供「扫描并连接」；连接中显示加载态。
+ * 主页：设备卡（电量圆环）+ 降噪快捷切换 + EQ/游戏模式/按键设置/设备信息 + 更多。
+ * 设计来源：用户提供的 3 页 Wear OS 设计稿；配色为 Material Design 3 蓝色系。
  */
 @Composable
 fun HomeScreen(vm: BudsViewModel, navController: NavHostController) {
@@ -61,7 +81,6 @@ fun HomeScreen(vm: BudsViewModel, navController: NavHostController) {
     val listState = rememberScalingLazyListState()
     var finding by remember { mutableStateOf(false) }
 
-    // 查找耳机的短暂反馈：3 秒后恢复常态
     LaunchedEffect(finding) {
         if (finding) {
             delay(FindBudsFeedbackMillis)
@@ -69,260 +88,285 @@ fun HomeScreen(vm: BudsViewModel, navController: NavHostController) {
         }
     }
 
-    val canControl = state.connected || state.demo
-    val firmwareLabel = if (state.firmware.isBlank()) {
-        stringResource(R.string.common_unknown)
-    } else {
-        state.firmware
-    }
+    val connected = state.connected
+    val connecting = state.connection == ConnectionState.Connecting
+    val canControl = connected || state.demo
+    val caps = state.capabilities
+    val firmwareLabel = if (state.firmware.isBlank()) stringResource(R.string.common_unknown) else state.firmware
 
     ScreenScaffold(scrollState = listState) { padding ->
-        ScalingLazyColumn(state = listState, contentPadding = padding) {
+        // TimeText 由 AppScaffold 绘制在顶部，这里额外留出顶部间距避免与标题重叠
+        val listPadding = PaddingValues(
+            start = 10.dp,
+            top = padding.calculateTopPadding() + 20.dp,
+            end = 10.dp,
+            bottom = padding.calculateBottomPadding(),
+        )
+        ScalingLazyColumn(state = listState, contentPadding = listPadding) {
             item {
                 ListHeader {
                     Text(
                         text = stringResource(R.string.home_title),
                         style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.onBackground,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
             }
-            item { HomeDeviceCard(state = state) }
-            if (state.demo) {
-                item {
-                    Text(
-                        text = stringResource(R.string.msg_demo_enabled),
-                        modifier = Modifier.fillMaxWidth(),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primaryDim,
-                        textAlign = TextAlign.Center,
-                        maxLines = 1,
-                    )
-                }
+            item {
+                DeviceCard(
+                    state = state,
+                    connected = connected,
+                    connecting = connecting,
+                    showCase = caps.caseBattery,
+                )
             }
-            if (!state.connected) {
+
+            if (!connected) {
                 item {
-                    WearListButton(
-                        iconRes = R.drawable.ic_search,
-                        label = stringResource(R.string.home_connect_prompt),
-                        secondaryLabel = if (state.connection == ConnectionState.Connecting) {
-                            stringResource(R.string.status_connecting)
-                        } else {
-                            stringResource(R.string.scan_hint)
-                        },
-                        enabled = state.connection != ConnectionState.Connecting,
+                    Button(
                         onClick = { navController.navigate(BudsRoutes.SCAN) },
-                    )
-                }
-            }
-            item { WearSectionHeader(stringResource(R.string.home_section_controls)) }
-            item {
-                WearListButton(
-                    iconRes = R.drawable.ic_noise,
-                    label = stringResource(R.string.noise_title),
-                    secondaryLabel = ancSummary(state),
-                    enabled = canControl,
-                    onClick = { navController.navigate(BudsRoutes.NOISE) },
-                )
-            }
-            item {
-                WearListButton(
-                    iconRes = R.drawable.ic_equalizer,
-                    label = stringResource(R.string.eq_title),
-                    secondaryLabel = stringResource(state.eqPreset.labelRes),
-                    enabled = canControl,
-                    onClick = { navController.navigate(BudsRoutes.EQUALIZER) },
-                )
-            }
-            item {
-                WearListButton(
-                    iconRes = R.drawable.ic_gesture,
-                    label = stringResource(R.string.gesture_title),
-                    secondaryLabel = if (state.gestures == defaultGestures()) {
-                        stringResource(R.string.home_gesture_default)
-                    } else {
-                        stringResource(R.string.home_gesture_customized)
-                    },
-                    enabled = canControl,
-                    onClick = { navController.navigate(BudsRoutes.GESTURES) },
-                )
-            }
-            item {
-                WearSwitchRow(
-                    checked = state.gameMode,
-                    onCheckedChange = { vm.setGameMode(it) },
-                    label = stringResource(R.string.game_mode_title),
-                    secondaryLabel = stringResource(R.string.game_mode_desc),
-                    enabled = canControl,
-                )
-            }
-            if (state.capabilities.findBuds) {
-                item {
-                    WearListButton(
-                        iconRes = R.drawable.ic_find,
-                        label = stringResource(
-                            if (finding) R.string.find_buds_stop else R.string.find_buds_title
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 4.dp),
+                        enabled = !connecting,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
                         ),
-                        secondaryLabel = if (finding) {
-                            stringResource(R.string.find_buds_ringing)
-                        } else {
-                            stringResource(R.string.find_buds_desc)
-                        },
-                        enabled = canControl,
-                        onClick = {
-                            if (finding) {
-                                finding = false
-                                vm.stopFindBuds()
-                            } else {
-                                finding = true
-                                vm.findBuds()
-                            }
+                        label = {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_search),
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text(text = stringResource(R.string.home_connect_prompt), maxLines = 1)
                         },
                     )
                 }
+            } else {
+                item {
+                    AncSegmentedSelector(
+                        current = state.ancMode,
+                        enabled = canControl,
+                        onSelect = { mode -> vm.setAncMode(mode) },
+                    )
+                }
+                item {
+                    WearNavRow(
+                        iconRes = R.drawable.ic_tune,
+                        label = stringResource(R.string.home_eq_mode),
+                        secondaryLabel = stringResource(state.eqPreset.labelRes),
+                        enabled = canControl,
+                        onClick = { navController.navigate(BudsRoutes.EQUALIZER) },
+                    )
+                }
+                item {
+                    WearSwitchRow(
+                        checked = state.gameMode,
+                        onCheckedChange = { vm.setGameMode(it) },
+                        label = stringResource(R.string.game_mode_title),
+                        enabled = canControl,
+                    )
+                }
+                item {
+                    WearNavRow(
+                        iconRes = R.drawable.ic_grid,
+                        label = stringResource(R.string.home_key_settings),
+                        enabled = canControl,
+                        onClick = { navController.navigate(BudsRoutes.GESTURES) },
+                    )
+                }
+                item {
+                    WearNavRow(
+                        iconRes = R.drawable.ic_more,
+                        label = stringResource(R.string.info_title),
+                        secondaryLabel = firmwareLabel,
+                        onClick = { navController.navigate(BudsRoutes.DEVICE_INFO) },
+                    )
+                }
+                if (caps.findBuds) {
+                    item {
+                        WearNavRow(
+                            iconRes = R.drawable.ic_find,
+                            label = stringResource(
+                                if (finding) R.string.find_buds_stop else R.string.find_buds_title
+                            ),
+                            secondaryLabel = if (finding) {
+                                stringResource(R.string.find_buds_ringing)
+                            } else {
+                                stringResource(R.string.find_buds_desc)
+                            },
+                            showChevron = false,
+                            enabled = canControl,
+                            onClick = {
+                                if (finding) {
+                                    finding = false
+                                    vm.stopFindBuds()
+                                } else {
+                                    finding = true
+                                    vm.findBuds()
+                                }
+                            },
+                        )
+                    }
+                }
+                item { WearSectionHeader(stringResource(R.string.home_section_more)) }
+                if (caps.dualConnection) {
+                    item {
+                        WearSwitchRow(
+                            checked = state.dualConnection,
+                            onCheckedChange = { vm.setDualConnection(it) },
+                            label = stringResource(R.string.info_dual_connection),
+                            enabled = canControl,
+                        )
+                    }
+                }
+                item {
+                    WearNavRow(
+                        iconRes = R.drawable.ic_bluetooth_off,
+                        label = stringResource(R.string.home_disconnect),
+                        showChevron = false,
+                        onClick = { vm.disconnect() },
+                    )
+                }
             }
+
             item {
-                WearListButton(
-                    iconRes = R.drawable.ic_info,
-                    label = stringResource(R.string.info_title),
-                    secondaryLabel = firmwareLabel,
-                    onClick = { navController.navigate(BudsRoutes.DEVICE_INFO) },
-                )
-            }
-            item { WearSectionHeader(stringResource(R.string.home_section_more)) }
-            item {
-                WearListButton(
-                    iconRes = R.drawable.ic_settings,
+                WearNavRow(
+                    iconRes = R.drawable.ic_menu,
                     label = stringResource(R.string.home_settings),
                     secondaryLabel = "v" + AppInfo.VERSION,
                     onClick = { navController.navigate(BudsRoutes.ABOUT) },
                 )
             }
-            if (state.connected) {
-                item {
-                    WearListButton(
-                        iconRes = R.drawable.ic_bluetooth,
-                        label = stringResource(R.string.home_disconnect),
-                        onClick = { vm.disconnect() },
-                    )
-                }
-            }
         }
     }
 }
 
-/** 设备状态卡：名称 + 型号 + 连接状态点 + 电量/加载态。 */
+/** 设备卡：耳机图标 + 名称/未连接 + 连接状态 + L/R/Case 电量圆环。 */
 @Composable
-private fun HomeDeviceCard(state: BudsState) {
-    val nameLabel = if (state.name.isBlank()) {
-        stringResource(R.string.status_disconnected)
-    } else {
-        state.name
-    }
-    val modelLabel = when {
-        state.model.isNotBlank() -> state.model
-        state.connected -> stringResource(R.string.common_unknown)
-        else -> ""
-    }
-
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.ic_buds),
-                contentDescription = null,
-                modifier = Modifier.size(28.dp),
-                tint = MaterialTheme.colorScheme.primary,
-            )
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = nameLabel,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+private fun DeviceCard(
+    state: BudsState,
+    connected: Boolean,
+    connecting: Boolean,
+    showCase: Boolean,
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(26.dp))
+            .background(MaterialTheme.colorScheme.secondaryContainer)
+            .padding(horizontal = 18.dp, vertical = 16.dp),
+    ) {
+        Column {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_buds),
+                    contentDescription = null,
+                    modifier = Modifier.size(26.dp),
+                    tint = MaterialTheme.colorScheme.primary,
                 )
-                if (modelLabel.isNotBlank()) {
+                if (state.name.isNotBlank()) {
+                    Spacer(Modifier.width(10.dp))
                     Text(
-                        text = modelLabel,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        text = state.name,
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
             }
-        }
-        Spacer(Modifier.height(8.dp))
-        ConnectionStatusRow(
-            connected = state.connected,
-            connecting = state.connection == ConnectionState.Connecting,
-            modifier = Modifier.fillMaxWidth(),
-        )
-        when {
-            state.connected -> {
-                Spacer(Modifier.height(10.dp))
-                BatterySummary(battery = state.battery, showCase = state.capabilities.caseBattery)
-                if (state.battery.charging) {
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        text = stringResource(R.string.battery_charging),
-                        modifier = Modifier.fillMaxWidth(),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        textAlign = TextAlign.Center,
-                        maxLines = 1,
-                    )
-                }
-            }
-
-            state.connection == ConnectionState.Connecting -> {
-                Spacer(Modifier.height(10.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(20.dp),
-                        strokeWidth = 2.dp,
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    Text(
-                        text = stringResource(R.string.status_connecting),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                    )
-                }
-            }
-
-            else -> {
-                Spacer(Modifier.height(6.dp))
-                Text(
-                    text = stringResource(R.string.scan_hint),
-                    modifier = Modifier.fillMaxWidth(),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                    maxLines = 2,
-                )
-            }
+            Spacer(Modifier.height(6.dp))
+            ConnectionStatusRow(connected = connected, connecting = connecting)
+            Spacer(Modifier.height(14.dp))
+            BatteryRings(battery = state.battery, showCase = showCase)
         }
     }
 }
 
-/** 降噪副标签：关闭/通透，或「降噪 · 等级」。 */
+/**
+ * 降噪快捷切换：跟随点击平滑滑动的选中指示块（弹簧动画 + 轻微拉伸），
+ * 不做真正的毛玻璃/背景模糊，保持简洁。
+ */
 @Composable
-private fun ancSummary(state: BudsState): String {
-    val mode = stringResource(state.ancMode.labelRes)
-    return if (state.ancMode == AncMode.NoiseCancellation) {
-        stringResource(R.string.home_anc_summary, mode, stringResource(state.ancLevel.labelRes))
-    } else {
-        mode
+private fun AncSegmentedSelector(
+    current: AncMode,
+    enabled: Boolean,
+    onSelect: (AncMode) -> Unit,
+) {
+    val options = listOf(AncMode.NoiseCancellation, AncMode.Off, AncMode.Transparency)
+    val selectedIndex = options.indexOf(current).coerceAtLeast(0)
+    val anim = remember { Animatable(selectedIndex.toFloat()) }
+    val haptics = LocalHapticFeedback.current
+
+    LaunchedEffect(selectedIndex) {
+        anim.animateTo(
+            targetValue = selectedIndex.toFloat(),
+            animationSpec = spring(dampingRatio = 0.60f, stiffness = 500f),
+        )
+    }
+
+    BoxWithConstraints(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(52.dp)
+            .clip(RoundedCornerShape(50))
+            .background(MaterialTheme.colorScheme.secondaryContainer),
+    ) {
+        val segmentWidth = maxWidth / options.size
+        // 滑动的选中块：弹簧回弹 + 运动中轻微横向拉伸
+        Box(
+            modifier = Modifier
+                .width(segmentWidth)
+                .fillMaxHeight()
+                .padding(4.dp)
+                .graphicsLayer {
+                    translationX = anim.value * segmentWidth.toPx()
+                    val v = (anim.velocity / 9000f).coerceIn(-1f, 1f)
+                    scaleX = 1f + v * 0.08f
+                    scaleY = 1f - abs(v) * 0.04f
+                }
+                .clip(RoundedCornerShape(50))
+                .background(MaterialTheme.colorScheme.primary),
+        )
+        Row(modifier = Modifier.matchParentSize()) {
+            options.forEachIndexed { index, mode ->
+                val selected = index == selectedIndex
+                val textColor by animateColorAsState(
+                    targetValue = if (selected) {
+                        MaterialTheme.colorScheme.onPrimary
+                    } else {
+                        MaterialTheme.colorScheme.onSecondaryContainer
+                    },
+                    animationSpec = tween(durationMillis = 200),
+                    label = "ancTextColor",
+                )
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .clip(RoundedCornerShape(50))
+                        .clickable(enabled = enabled) {
+                            if (!selected) {
+                                haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                onSelect(mode)
+                            }
+                        },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = stringResource(mode.labelRes),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = textColor,
+                        maxLines = 1,
+                        textAlign = TextAlign.Center,
+                    )
+                }
+            }
+        }
     }
 }

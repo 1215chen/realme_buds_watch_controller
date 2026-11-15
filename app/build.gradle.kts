@@ -13,8 +13,8 @@ android {
         applicationId = "com.cyhao.realmebuds"
         minSdk = 33
         targetSdk = 35
-        versionCode = 9
-        versionName = "1.0.8"
+        versionCode = 10
+        versionName = "1.1.0"
 
         // Wear OS 4 (API 33) 起；同时兼容 Wear OS 5/6
         vectorDrawables.useSupportLibrary = false
@@ -75,6 +75,7 @@ dependencies {
 
     implementation("androidx.core:core-ktx:1.15.0")
 }
+
 
 
 

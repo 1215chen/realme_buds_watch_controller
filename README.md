@@ -4,26 +4,26 @@
 >
 > **本项目是非官方开源项目，与 realme、OPPO、OnePlus 及其关联公司没有任何关系**；「realme」「OPPO」等商标归其各自所有者。协议信息来自对客户端行为的互操作研究，仅供个人学习与设备互操作使用。
 
-![平台](https://img.shields.io/badge/Wear%20OS-4%2B-3DDC84) ![Kotlin](https://img.shields.io/badge/Kotlin-2.1.20-7F52FF) ![Compose](https://img.shields.io/badge/Compose%20for%20Wear%20OS-Material%203-4285F4) ![minSdk](https://img.shields.io/badge/minSdk-33-blue) ![License](https://img.shields.io/badge/License-MIT-green)
+![平台](https://img.shields.io/badge/Wear%20OS-4%2B-3DDC84) ![Kotlin](https://img.shields.io/badge/Kotlin-2.1.20-7F52FF) ![Compose](https://img.shields.io/badge/Compose%20for%20Wear%20OS-Material%203-4285F4) ![minSdk](https://img.shields.io/badge/minSdk-33-blue) ![Version](https://img.shields.io/badge/version-1.1.0-4285F4) ![License](https://img.shields.io/badge/License-MIT-green)
 
-| 主页（已连接） | 降噪控制 | 音效 |
+| 主页（已连接） | 设备卡 · 电量环 | 降噪切换 |
 |---|---|---|
-| ![主页](docs/screenshots/01-home-connected.png) | ![降噪](docs/screenshots/03-anc.png) | ![音效](docs/screenshots/04-equalizer.png) |
+| ![主页](docs/screenshots/ui-home.png) | ![设备卡](docs/screenshots/ui-home-card.png) | ![降噪切换](docs/screenshots/ui-anc.png) |
 
-| 触控手势 | 设备信息 | 关于 |
+| 功能行 | 设置 / 关于 | 启动图标 |
 |---|---|---|
-| ![手势](docs/screenshots/05-gestures.png) | ![设备信息](docs/screenshots/06-device-info.png) | ![关于](docs/screenshots/07-about.png) |
+| ![功能行](docs/screenshots/ui-home-rows.png) | ![设置](docs/screenshots/ui-about.png) | ![图标](docs/screenshots/app-icon-512.png) |
 
-> 以上为真机截图（Wear OS 手表 + realme Buds T200）。
+> 以上为真机截图（Wear OS 手表 + realme Buds T200），界面配色为 **Material Design 3 蓝色系**。
 
 ## 功能
 
-- **降噪控制**：关闭 / 通透 / 降噪（支持等级的型号会自动出现智能/深度/中等/轻度）
+- **主页设备卡**：设备名、连接状态、L / R / 充电盒三个电量圆环（未上报显示 `-`）
+- **降噪控制**：主页快捷分段切换（关闭 / 通透 / 降噪），选中块平滑滑动；支持等级的型号自动提供智能/深度/中等/轻度
 - **音效**：纯净人声 / 纯粹原音 / 纯净低音 / 浑厚低音 / 明亮 / 动态（按耳机实际上报的能力生效）
 - **触控手势**：左耳、右耳可分别配置双击 / 三击 / 长按
 - **游戏模式**：低延迟开关
 - **双设备连接**：耳机支持时自动显示开关
-- **电量**：左耳 / 右耳 / 充电盒（未上报时隐藏或显示 `—`）
 - **设备信息**：型号、固件版本、蓝牙地址
 - **自动回连**：记住上次设备，打开应用自动连接；掉线后按退避策略重连
 - **演示模式**：没有耳机也能完整体验界面
@@ -47,16 +47,16 @@
 
 ## 安装
 
-1. 从 [Releases](../../releases) 下载签名 APK（或自行构建，见下）；
-2. 手打开发者模式与无线调试（Wear OS：设置 → 系统 → 开发者选项 → 无线调试）；
+1. 从 [Releases](../../releases) 下载签名 APK（当前版本 `buds-wear-controller-1.1.0.apk`）；
+2. 手表打开开发者选项与无线调试（Wear OS：设置 → 系统 → 开发者选项 → 无线调试）；
 3. 安装：
 
 ```bash
-adb install -r buds-wear-controller.apk
+adb install -r buds-wear-controller-1.1.0.apk
 adb shell am start -n com.cyhao.realmebuds/com.cyhao.realmebuds.MainActivity
 ```
 
-> 首次打开默认为「演示模式」（模拟 realme Buds Air 6 Pro）。连接真实耳机请在「关于」中关闭演示模式，然后在主页点击「扫描并连接」。
+> 首次打开默认为「演示模式」（模拟 realme Buds Air 6 Pro）。连接真实耳机请在「设置」页关闭演示模式，然后在主页点击「搜索并连接」。
 
 ## 构建
 
@@ -86,8 +86,8 @@ app/                      # 应用模块（Kotlin + Jetpack Compose for Wear OS�
     data/                 # 状态模型、Repository、ViewModel（演示/真实实现）
     ble/                  # BLE/RFCOMM 传输、realme 协议编解码、命令表
     ui/screens/           # 7 个 Wear M3 页面
-    ui/components/        # 通用 Wear M3 组件
-    ui/theme/             # 主题（Wear M3 官方默认配色）
+    ui/components/        # 通用组件（电量圆环、列表行、开关行）
+    ui/theme/             # 主题（Material Design 3 蓝色系）
 docs/                     # 设计、安装、协议、校准、AI 使用说明
 gradlew / gradlew.bat     # Gradle Wrapper
 ```
@@ -95,7 +95,7 @@ gradlew / gradlew.bat     # Gradle Wrapper
 ## 关于 AI 生成（重要说明）
 
 - 本项目**大量代码、文档与设计稿由 AI 编码智能体（DeepSeek Harness）在人工需求指导下生成**；
-- 人工负责：需求定义、真机联调、协议抓包校准、真机功能验证与最终审查；
+- 人工负责：需求定义、真机联调、协议抓包校准、功能验证、视觉设计取舍与最终审查；
 - 因此代码风格/结构可能带有 AI 生成痕迹，欢迎通过 Issue / PR 改进；
 - 逆向分析得到的协议实现**不保证适用于所有型号**，仅供学习与互操作研究，请遵守当地法律与耳机厂商的条款；
 - 详见 [docs/AI_USAGE.md](docs/AI_USAGE.md)。

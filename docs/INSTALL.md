@@ -2,7 +2,7 @@
 
 > 适用：**Wear OS 4 及以上**（Android 13 / API 33+）的圆形/方形表盘手表
 > 应用名：**耳机控制器**；正式版包名 `com.cyhao.realmebuds`，调试版 `com.cyhao.realmebuds.debug`（debug 构建带 `.debug` 后缀，可与正式版共存）
-> 前置：直接使用已签名交付包 `dist/耳机控制器-1.0.8.apk`（文件名以交付说明为准）；或按根目录 `README.md`「构建」章节自行构建
+> 前置：直接使用已签名交付包 `dist/耳机控制器-1.1.0.apk`（文件名以交付说明为准）；或按根目录 `README.md`「构建」章节自行构建
 > 免责声明：本项目为非官方开源项目，与 realme 官方无关；耳机控制协议来自对 realme Link 客户端的学习，**尚未在真机耳机上完整验证**。
 
 ---
@@ -81,14 +81,14 @@ APK 产物与交付包：
 
 | 类型 | 路径 | 包名 |
 |---|---|---|
-| **已签名交付 APK（推荐）** | `dist/耳机控制器-1.0.8.apk`（最终文件名以交付说明为准） | `com.cyhao.realmebuds` |
+| **已签名交付 APK（推荐）** | `dist/耳机控制器-1.1.0.apk`（最终文件名以交付说明为准） | `com.cyhao.realmebuds` |
 | debug（开箱即装） | `app/build/outputs/apk/debug/app-debug.apk` | `com.cyhao.realmebuds.debug` |
 | release（自行构建） | `app/build/outputs/apk/release/app-release-unsigned.apk`（未配置签名，**不可直接安装**） | `com.cyhao.realmebuds` |
 
 安装已签名交付包（推荐）：
 
 ```powershell
-adb install -r "dist\耳机控制器-1.0.8.apk"
+adb install -r "dist\耳机控制器-1.1.0.apk"
 ```
 
 或安装 debug 包（包名带 `.debug`，可与正式版共存）：
@@ -195,7 +195,7 @@ adb uninstall com.cyhao.realmebuds.debug
 | 只能看到手机设备 | `adb devices` 有多台时用 `adb -s <序列号> install ...` 指定手表 |
 | 无线调试找不到手表 | 确认同一 Wi-Fi、关闭 PC 防火墙/代理、手表未休眠；或改用 USB / 蓝牙调试 |
 | `adb: failed to install ... INSTALL_FAILED_INSUFFICIENT_STORAGE` | 手表存储不足，清理后重装 |
-| release APK 装不上 | 自行构建的 release 未签名（`app-release-unsigned.apk`），请改用已签名交付包 `dist/耳机控制器-1.0.8.apk`，或安装 debug 包 |
+| release APK 装不上 | 自行构建的 release 未签名（`app-release-unsigned.apk`），请改用已签名交付包 `dist/耳机控制器-1.1.0.apk`，或安装 debug 包 |
 
 ### 6.5 权限弹窗不再出现
 
@@ -217,4 +217,4 @@ adb uninstall com.cyhao.realmebuds.debug
 4. **release 未配置签名**：仓库默认输出未签名 release APK，正式分发需自行签名（交付版见 `dist/`）。
 5. **单耳机型号适配有限**：功能开关是否可用取决于耳机型号上报的能力位；34 个型号的延时/UUID 配置未完整下发。
 6. **无手机伴侣 App**：本应用为 standalone（`com.google.android.wearable.standalone=true`），不依赖手机 realme Link，也无法读取 realme Link 的云端数据。
-7. **图片均为设计稿预览**：README/`docs/mockups` 中图片由 Pillow 生成，非真机截图。
+7. **图片说明**：README/docs 中的界面图为真机截图（Wear OS 手表），启动图标 PNG 为矢量图标导出的预览图。

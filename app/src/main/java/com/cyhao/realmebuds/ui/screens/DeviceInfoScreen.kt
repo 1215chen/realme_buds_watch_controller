@@ -1,4 +1,4 @@
-﻿package com.cyhao.realmebuds.ui.screens
+package com.cyhao.realmebuds.ui.screens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,6 +34,7 @@ import com.cyhao.realmebuds.R
 import com.cyhao.realmebuds.data.BudsViewModel
 import com.cyhao.realmebuds.ui.components.WearSectionHeader
 import com.cyhao.realmebuds.ui.components.WearSwitchRow
+import com.cyhao.realmebuds.ui.components.CrownScrollEffect
 
 /**
  * 设备信息：型号/固件/蓝牙地址 + 双设备连接、入耳检测开关 + 恢复出厂设置（二次确认）。
@@ -42,6 +43,7 @@ import com.cyhao.realmebuds.ui.components.WearSwitchRow
 fun DeviceInfoScreen(vm: BudsViewModel, navController: NavHostController) {
     val state by vm.state.collectAsState()
     val listState = rememberScalingLazyListState()
+    CrownScrollEffect(listState)
     var showResetConfirm by remember { mutableStateOf(false) }
     val canControl = state.connected || state.demo
     val unknown = stringResource(R.string.common_unknown)

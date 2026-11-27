@@ -1,10 +1,10 @@
 # 耳机控制器（Wear OS）· Buds Wear Controller
 
-> 在 **Wear OS 手表**上直接控制 realme / OPPO 系 TWS 耳机的开源应用：降噪、音效、触控手势、游戏模式、双设备连接、电量与设备信息。
+> 在 **Wear OS / ColorOS Watch 手表**上直接控制 realme / OPPO 系 TWS 耳机的开源应用：降噪、音效、触控手势、游戏模式、双设备连接、电量与设备信息。
 >
 > **本项目是非官方开源项目，与 realme、OPPO、OnePlus 及其关联公司没有任何关系**；「realme」「OPPO」等商标归其各自所有者。协议信息来自对客户端行为的互操作研究，仅供个人学习与设备互操作使用。
 
-![平台](https://img.shields.io/badge/Wear%20OS-4%2B-3DDC84) ![Kotlin](https://img.shields.io/badge/Kotlin-2.1.20-7F52FF) ![Compose](https://img.shields.io/badge/Compose%20for%20Wear%20OS-Material%203-4285F4) ![minSdk](https://img.shields.io/badge/minSdk-33-blue) ![Version](https://img.shields.io/badge/version-1.1.0-4285F4) ![License](https://img.shields.io/badge/License-MIT-green)
+![平台](https://img.shields.io/badge/Wear%20OS-4%2B-3DDC84) ![Kotlin](https://img.shields.io/badge/Kotlin-2.1.20-7F52FF) ![Compose](https://img.shields.io/badge/Compose%20for%20Wear%20OS-Material%203-4285F4) ![minSdk](https://img.shields.io/badge/minSdk-33-blue) ![Version](https://img.shields.io/badge/version-1.1.1-4285F4) ![License](https://img.shields.io/badge/License-MIT-green)
 
 | 主页（已连接） | 设备卡 · 电量环 | 降噪切换 |
 |---|---|---|
@@ -27,12 +27,14 @@
 - **设备信息**：型号、固件版本、蓝牙地址
 - **自动回连**：记住上次设备，打开应用自动连接；掉线后按退避策略重连
 - **演示模式**：没有耳机也能完整体验界面
+- **平台适配**：Wear OS 4/5 已验证；OPPO Watch（ColorOS Watch）为**实验性适配**（minSdk 26 已可安装，表冠滚动 + Vibrator 震动兜底，待更多机型实测）
 
 ## 支持的耳机
 
 本项目不是按型号白名单硬编码，而是按 **realme/OPPO 系私有协议**通用适配：
 
 - ✅ **已真机验证**：`realme Buds T200`（降噪/音效/游戏模式/双设备/左右耳手势全部实际生效）
+- ✅ **平台兼容**：Wear OS 4/5 真机验证；OPPO Watch（ColorOS Watch 1/2/3/4）自 1.1.1 起可安装（minSdk 26），表冠/震动做了兼容适配
 - 🟡 **理论支持**：采用同一协议族的 realme TWS（Buds T 系列、Buds Air 系列、Buds Q / Air Neo 等）与部分 OPPO/OnePlus Enco 系列；是否全部可用取决于该型号的命令支持子集，欢迎反馈实测结果
 - ❌ **不支持**：非 realme/OPPO 品牌耳机（只能做标准 BLE 电量/信息读取），以及协议完全不同的头戴/颈挂型号
 
@@ -47,20 +49,20 @@
 
 ## 安装
 
-1. 从 [Releases](../../releases) 下载签名 APK（当前版本 `buds-wear-controller-1.1.0.apk`）；
+1. 从 [Releases](../../releases) 下载签名 APK（当前版本 `buds-wear-controller-1.1.1.apk`）；
 2. 手表打开开发者选项与无线调试（Wear OS：设置 → 系统 → 开发者选项 → 无线调试）；
 3. 安装：
 
 ```bash
-adb install -r buds-wear-controller-1.1.0.apk
+adb install -r buds-wear-controller-1.1.1.apk
 adb shell am start -n com.cyhao.realmebuds/com.cyhao.realmebuds.MainActivity
 ```
 
-> 首次打开默认为「演示模式」（模拟 realme Buds Air 6 Pro）。连接真实耳机请在「设置」页关闭演示模式，然后在主页点击「搜索并连接」。
+> 首次打开默认为**真实设备模式**：在主页点击「搜索并连接」扫描耳机；没有耳机时可在「设置」页手动开启「演示模式」体验全部界面。
 
 ## 构建
 
-**环境要求**：JDK 17、Android SDK 36（compileSdk 36 / targetSdk 35 / minSdk 33）、Gradle 8.14.x（已在仓库内提供 `gradlew`）。
+**环境要求**：JDK 17、Android SDK 36（compileSdk 36 / targetSdk 35 / minSdk 26）、Gradle 8.14.x（已在仓库内提供 `gradlew`）。
 
 ```bash
 # macOS / Linux

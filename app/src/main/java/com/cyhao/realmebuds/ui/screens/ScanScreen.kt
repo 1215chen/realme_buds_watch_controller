@@ -1,8 +1,9 @@
-﻿package com.cyhao.realmebuds.ui.screens
+package com.cyhao.realmebuds.ui.screens
 
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -47,12 +48,17 @@ import com.cyhao.realmebuds.data.ConnectionState
 import com.cyhao.realmebuds.data.ScannedDevice
 import com.cyhao.realmebuds.ui.components.WearListButton
 import com.cyhao.realmebuds.ui.components.WearSectionHeader
+import com.cyhao.realmebuds.ui.components.CrownScrollEffect
 
-/** Android 12+ 扫描/连接耳机所需的运行时权限。 */
-private val BlePermissions = arrayOf(
-    Manifest.permission.BLUETOOTH_SCAN,
-    Manifest.permission.BLUETOOTH_CONNECT,
-)
+/** 按系统版本选择运行时权限：Android 12+ 蓝牙权限；Android 11 及以下为定位权限。 */
+private val BlePermissions: Array<String> = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+    arrayOf(
+        Manifest.permission.BLUETOOTH_SCAN,
+        Manifest.permission.BLUETOOTH_CONNECT,
+    )
+} else {
+    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
+}
 
 private fun hasBlePermissions(context: Context): Boolean = BlePermissions.all { permission ->
     ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
@@ -70,6 +76,7 @@ fun ScanScreen(vm: BudsViewModel, navController: NavHostController) {
     val scanning by vm.scanning.collectAsState()
     val results by vm.scanResults.collectAsState()
     val listState = rememberScalingLazyListState()
+    CrownScrollEffect(listState)
 
     var hasPermission by remember { mutableStateOf(hasBlePermissions(context)) }
     var permissionDenied by remember { mutableStateOf(false) }

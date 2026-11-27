@@ -11,7 +11,7 @@ class AppSettings(context: Context) {
         context.getSharedPreferences("buds_wear_settings", Context.MODE_PRIVATE)
 
     var demoMode: Boolean
-        get() = prefs.getBoolean(KEY_DEMO_MODE, true)
+        get() = prefs.getBoolean(KEY_DEMO_MODE, false)
         set(value) = prefs.edit().putBoolean(KEY_DEMO_MODE, value).apply()
 
     /** 上次成功连接的设备；应用重启后据此自动回连。 */

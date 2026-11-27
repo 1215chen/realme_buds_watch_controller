@@ -1,4 +1,4 @@
-﻿package com.cyhao.realmebuds.ble
+package com.cyhao.realmebuds.ble
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.util.Log
@@ -798,13 +799,21 @@ class BleBudsRepository(
         _state.value = _state.value.transform()
     }
 
-    private fun hasScanPermission(): Boolean =
-        appContext.checkSelfPermission(Manifest.permission.BLUETOOTH_SCAN) ==
-            PackageManager.PERMISSION_GRANTED
+    private fun hasScanPermission(): Boolean {
+        val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            Manifest.permission.BLUETOOTH_SCAN
+        } else {
+            Manifest.permission.ACCESS_FINE_LOCATION
+        }
+        return appContext.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
+    }
 
-    private fun hasConnectPermission(): Boolean =
-        appContext.checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) ==
+    private fun hasConnectPermission(): Boolean {
+        // Android 11 及以下连接设备只需要 BLUETOOTH（普通权限，安装即授予）
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return true
+        return appContext.checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) ==
             PackageManager.PERMISSION_GRANTED
+    }
 
     @SuppressLint("MissingPermission")
     private fun isAdapterReady(bluetoothAdapter: BluetoothAdapter): Boolean = try {
@@ -831,4 +840,3 @@ class BleBudsRepository(
         const val TAG = "BleBudsRepository"
     }
 }
-

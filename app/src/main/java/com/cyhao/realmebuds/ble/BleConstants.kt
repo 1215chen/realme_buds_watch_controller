@@ -1,4 +1,4 @@
-﻿package com.cyhao.realmebuds.ble
+package com.cyhao.realmebuds.ble
 
 import java.util.UUID
 

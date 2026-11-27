@@ -1,4 +1,4 @@
-﻿package com.cyhao.realmebuds.ble
+package com.cyhao.realmebuds.ble
 
 import com.cyhao.realmebuds.data.AncLevel
 import com.cyhao.realmebuds.data.AncMode

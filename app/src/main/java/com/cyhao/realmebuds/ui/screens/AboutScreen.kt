@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -34,6 +35,8 @@ import com.cyhao.realmebuds.AppInfo
 import com.cyhao.realmebuds.R
 import com.cyhao.realmebuds.data.BudsViewModel
 import com.cyhao.realmebuds.ui.components.WearSwitchRow
+import com.cyhao.realmebuds.util.Haptics
+import com.cyhao.realmebuds.ui.components.CrownScrollEffect
 
 /**
  * 设置/关于页：应用图标 + 名称/版本 + 手表型号 + 耳机型号 + 演示模式 + 声明。
@@ -43,7 +46,9 @@ import com.cyhao.realmebuds.ui.components.WearSwitchRow
 fun AboutScreen(vm: BudsViewModel, navController: NavHostController) {
     val demo by vm.demoMode.collectAsState()
     val state by vm.state.collectAsState()
+    val context = LocalContext.current
     val listState = rememberScalingLazyListState()
+    CrownScrollEffect(listState)
     val watchModel = Build.MODEL?.takeIf { it.isNotBlank() } ?: "Wear OS"
     val earbudModel = when {
         state.model.isNotBlank() -> state.model
@@ -126,7 +131,7 @@ fun AboutScreen(vm: BudsViewModel, navController: NavHostController) {
             item {
                 WearSwitchRow(
                     checked = demo,
-                    onCheckedChange = { vm.setDemoMode(it) },
+                    onCheckedChange = { if (!Haptics.isSystemHapticsPlatform) Haptics.tick(context); vm.setDemoMode(it) },
                     label = stringResource(R.string.about_demo_mode),
                     secondaryLabel = stringResource(R.string.about_demo_desc),
                 )

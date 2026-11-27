@@ -1,4 +1,4 @@
-﻿package com.cyhao.realmebuds.ble
+package com.cyhao.realmebuds.ble
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -10,6 +10,7 @@ import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Handler
 import android.util.Log
 import com.cyhao.realmebuds.data.ScannedDevice
@@ -36,9 +37,15 @@ internal class BleScanner(
 
     private val timeoutRunnable = Runnable { stopInternal(auto = true) }
 
-    fun hasScanPermission(): Boolean =
-        appContext.checkSelfPermission(Manifest.permission.BLUETOOTH_SCAN) ==
-            PackageManager.PERMISSION_GRANTED
+    fun hasScanPermission(): Boolean {
+        // Android 12+ 用蓝牙扫描权限；Android 11 及以下扫描 BLE 需要定位权限
+        val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            Manifest.permission.BLUETOOTH_SCAN
+        } else {
+            Manifest.permission.ACCESS_FINE_LOCATION
+        }
+        return appContext.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
+    }
 
     /** @return false 表示蓝牙未就绪/未授权/无法开始扫描。 */
     fun start(): Boolean {

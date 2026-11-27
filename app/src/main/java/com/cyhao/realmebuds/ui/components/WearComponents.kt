@@ -1,4 +1,4 @@
-﻿package com.cyhao.realmebuds.ui.components
+package com.cyhao.realmebuds.ui.components
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background

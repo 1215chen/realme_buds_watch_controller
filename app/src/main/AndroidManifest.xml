@@ -1,7 +1,10 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <uses-feature android:name="android.hardware.type.watch" />
+    <!-- 不强制要求 watch feature：OPPO Watch（ColorOS Watch）等非 Wear OS 手表可能不声明该 feature -->
+    <uses-feature
+        android:name="android.hardware.type.watch"
+        android:required="false" />
     <uses-feature
         android:name="android.hardware.bluetooth_le"
         android:required="true" />

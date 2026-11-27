@@ -32,6 +32,7 @@ import com.cyhao.realmebuds.data.GestureType
 import com.cyhao.realmebuds.data.labelRes
 import com.cyhao.realmebuds.ui.components.WearListButton
 import com.cyhao.realmebuds.ui.components.WearSectionHeader
+import com.cyhao.realmebuds.ui.components.CrownScrollEffect
 
 /** 正在编辑的手势：哪只耳 + 哪种手势。 */
 private data class GestureEditTarget(val side: EarSide, val type: GestureType)
@@ -43,6 +44,7 @@ private data class GestureEditTarget(val side: EarSide, val type: GestureType)
 fun GesturesScreen(vm: BudsViewModel, navController: NavHostController) {
     val state by vm.state.collectAsState()
     val listState = rememberScalingLazyListState()
+    CrownScrollEffect(listState)
     var editing by remember { mutableStateOf<GestureEditTarget?>(null) }
     val canControl = state.connected || state.demo
 

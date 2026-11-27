@@ -1,4 +1,4 @@
-﻿package com.cyhao.realmebuds.ui.screens
+package com.cyhao.realmebuds.ui.screens
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Column
@@ -37,6 +37,7 @@ import com.cyhao.realmebuds.R
 import com.cyhao.realmebuds.data.BudsViewModel
 import com.cyhao.realmebuds.data.EqPreset
 import com.cyhao.realmebuds.data.labelRes
+import com.cyhao.realmebuds.ui.components.CrownScrollEffect
 
 /**
  * 音效：6 个预设单选 + 频响示意图 + 说明。
@@ -45,6 +46,7 @@ import com.cyhao.realmebuds.data.labelRes
 fun EqualizerScreen(vm: BudsViewModel, navController: NavHostController) {
     val state by vm.state.collectAsState()
     val listState = rememberScalingLazyListState()
+    CrownScrollEffect(listState)
     val canControl = state.connected || state.demo
 
     ScreenScaffold(scrollState = listState) { padding ->

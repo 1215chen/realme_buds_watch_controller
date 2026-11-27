@@ -11,12 +11,12 @@ android {
 
     defaultConfig {
         applicationId = "com.cyhao.realmebuds"
-        minSdk = 33
+        minSdk = 26
         targetSdk = 35
-        versionCode = 10
-        versionName = "1.1.0"
+        versionCode = 11
+        versionName = "1.1.1"
 
-        // Wear OS 4 (API 33) 起；同时兼容 Wear OS 5/6
+        // minSdk 26：兼容 ColorOS Watch（OPPO Watch 1/2/3/4 等，Android 8.0+）与 Wear OS 3/4/5
         vectorDrawables.useSupportLibrary = false
     }
 

@@ -1,4 +1,4 @@
-﻿package com.cyhao.realmebuds.data
+package com.cyhao.realmebuds.data
 
 import android.content.Context
 import androidx.lifecycle.ViewModel

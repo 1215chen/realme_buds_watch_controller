@@ -1,8 +1,8 @@
-﻿# 安装与配对指南 · 耳机控制器
+# 安装与配对指南 · 耳机控制器
 
 > 适用：**Wear OS 4 及以上**（Android 13 / API 33+）的圆形/方形表盘手表
 > 应用名：**耳机控制器**；正式版包名 `com.cyhao.realmebuds`，调试版 `com.cyhao.realmebuds.debug`（debug 构建带 `.debug` 后缀，可与正式版共存）
-> 前置：直接使用已签名交付包 `dist/耳机控制器-1.1.0.apk`（文件名以交付说明为准）；或按根目录 `README.md`「构建」章节自行构建
+> 前置：直接使用已签名交付包 `dist/耳机控制器-1.1.1.apk`（文件名以交付说明为准）；或按根目录 `README.md`「构建」章节自行构建
 > 免责声明：本项目为非官方开源项目，与 realme 官方无关；耳机控制协议来自对 realme Link 客户端的学习，**尚未在真机耳机上完整验证**。
 
 ---
@@ -81,14 +81,14 @@ APK 产物与交付包：
 
 | 类型 | 路径 | 包名 |
 |---|---|---|
-| **已签名交付 APK（推荐）** | `dist/耳机控制器-1.1.0.apk`（最终文件名以交付说明为准） | `com.cyhao.realmebuds` |
+| **已签名交付 APK（推荐）** | `dist/耳机控制器-1.1.1.apk`（最终文件名以交付说明为准） | `com.cyhao.realmebuds` |
 | debug（开箱即装） | `app/build/outputs/apk/debug/app-debug.apk` | `com.cyhao.realmebuds.debug` |
 | release（自行构建） | `app/build/outputs/apk/release/app-release-unsigned.apk`（未配置签名，**不可直接安装**） | `com.cyhao.realmebuds` |
 
 安装已签名交付包（推荐）：
 
 ```powershell
-adb install -r "dist\耳机控制器-1.1.0.apk"
+adb install -r "dist\耳机控制器-1.1.1.apk"
 ```
 
 或安装 debug 包（包名带 `.debug`，可与正式版共存）：
@@ -195,7 +195,8 @@ adb uninstall com.cyhao.realmebuds.debug
 | 只能看到手机设备 | `adb devices` 有多台时用 `adb -s <序列号> install ...` 指定手表 |
 | 无线调试找不到手表 | 确认同一 Wi-Fi、关闭 PC 防火墙/代理、手表未休眠；或改用 USB / 蓝牙调试 |
 | `adb: failed to install ... INSTALL_FAILED_INSUFFICIENT_STORAGE` | 手表存储不足，清理后重装 |
-| release APK 装不上 | 自行构建的 release 未签名（`app-release-unsigned.apk`），请改用已签名交付包 `dist/耳机控制器-1.1.0.apk`，或安装 debug 包 |
+| release APK 装不上 | 自行构建的 release 未签名（`app-release-unsigned.apk`），请改用已签名交付包 `dist/耳机控制器-1.1.1.apk`，或安装 debug 包 |
+| OPPO Watch 提示「解析软件包出现问题」 | 旧版 minSdk 33 导致；1.1.1 起 minSdk 26，可正常安装。仍失败请提供手表系统版本（设置 → 关于 → 版本 / db shell getprop ro.build.version.sdk） |
 
 ### 6.5 权限弹窗不再出现
 

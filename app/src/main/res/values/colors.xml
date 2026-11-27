@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Material Design 3 蓝色系（dark blue baseline），不做自定义品牌色 -->
     <color name="m3_primary">#A8C7FA</color>

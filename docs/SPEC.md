@@ -1,4 +1,4 @@
-﻿# 产品规格（Spec）
+# 产品规格（Spec）
 
 ## 1. 定位
 
@@ -11,9 +11,11 @@
 | 项 | 值 |
 |---|---|
 | 语言 / UI | Kotlin 2.1.20 + Jetpack Compose for Wear OS Material 3 (1.6.2) |
-| minSdk / targetSdk / compileSdk | 33 / 35 / 36 |
+| minSdk / targetSdk / compileSdk | 26 / 35 / 36（兼容 ColorOS Watch 与 Wear OS 3+） |
 | 架构 | 单 Activity + Compose Navigation + ViewModel + Repository（StateFlow） |
 | BLE | BluetoothLeScanner + GATT（私有通道自动发现）+ RFCOMM/SPP 兜底 |
+| 输入 | 旋转表冠（RotaryScrollEvent / ACTION_SCROLL / DPAD 按键三种兼容路径） |
+| 触觉 | Wear OS 4+ 用系统 HapticFeedback；ColorOS/旧系统用 Vibrator 兜底 |
 | 主题 | Material Design 3 蓝色系 ColorScheme（深色基线，无品牌定制色） |
 
 ## 3. 页面与交互

@@ -1,4 +1,4 @@
-﻿package com.cyhao.realmebuds.ble
+package com.cyhao.realmebuds.ble
 
 /**
  * 标准 GATT 特征解析（BAS/DIS）。

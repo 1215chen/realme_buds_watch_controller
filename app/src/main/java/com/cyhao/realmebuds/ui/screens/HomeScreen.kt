@@ -1,4 +1,4 @@
-﻿package com.cyhao.realmebuds.ui.screens
+package com.cyhao.realmebuds.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import kotlin.math.abs
 import androidx.compose.runtime.Composable
@@ -66,6 +67,8 @@ import com.cyhao.realmebuds.ui.components.WearNavRow
 import com.cyhao.realmebuds.ui.components.WearSectionHeader
 import com.cyhao.realmebuds.ui.components.WearSwitchRow
 import com.cyhao.realmebuds.ui.theme.ConnectedGreen
+import com.cyhao.realmebuds.util.Haptics
+import com.cyhao.realmebuds.ui.components.CrownScrollEffect
 import kotlinx.coroutines.delay
 
 /** 「查找耳机」反馈时长（毫秒）。 */
@@ -79,7 +82,16 @@ private const val FindBudsFeedbackMillis = 3_000L
 fun HomeScreen(vm: BudsViewModel, navController: NavHostController) {
     val state by vm.state.collectAsState()
     val listState = rememberScalingLazyListState()
+    CrownScrollEffect(listState)
+    val context = LocalContext.current
     var finding by remember { mutableStateOf(false) }
+
+    LaunchedEffect(state.connection) {
+        // Wear OS 使用系统触觉，不额外震动；ColorOS/旧系统用 Vibrator 反馈
+        if (state.connection == ConnectionState.Connected && !Haptics.isSystemHapticsPlatform) {
+            Haptics.confirm(context)
+        }
+    }
 
     LaunchedEffect(finding) {
         if (finding) {
@@ -166,7 +178,7 @@ fun HomeScreen(vm: BudsViewModel, navController: NavHostController) {
                 item {
                     WearSwitchRow(
                         checked = state.gameMode,
-                        onCheckedChange = { vm.setGameMode(it) },
+                        onCheckedChange = { if (!Haptics.isSystemHapticsPlatform) Haptics.tick(context); vm.setGameMode(it) },
                         label = stringResource(R.string.game_mode_title),
                         enabled = canControl,
                     )
@@ -218,7 +230,7 @@ fun HomeScreen(vm: BudsViewModel, navController: NavHostController) {
                     item {
                         WearSwitchRow(
                             checked = state.dualConnection,
-                            onCheckedChange = { vm.setDualConnection(it) },
+                            onCheckedChange = { if (!Haptics.isSystemHapticsPlatform) Haptics.tick(context); vm.setDualConnection(it) },
                             label = stringResource(R.string.info_dual_connection),
                             enabled = canControl,
                         )
@@ -301,7 +313,8 @@ private fun AncSegmentedSelector(
     val options = listOf(AncMode.NoiseCancellation, AncMode.Off, AncMode.Transparency)
     val selectedIndex = options.indexOf(current).coerceAtLeast(0)
     val anim = remember { Animatable(selectedIndex.toFloat()) }
-    val haptics = LocalHapticFeedback.current
+    val context = LocalContext.current
+    val systemHaptics = LocalHapticFeedback.current
 
     LaunchedEffect(selectedIndex) {
         anim.animateTo(
@@ -352,7 +365,11 @@ private fun AncSegmentedSelector(
                         .clip(RoundedCornerShape(50))
                         .clickable(enabled = enabled) {
                             if (!selected) {
-                                haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                if (Haptics.isSystemHapticsPlatform) {
+                                    systemHaptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                } else {
+                                    Haptics.tick(context)
+                                }
                                 onSelect(mode)
                             }
                         },

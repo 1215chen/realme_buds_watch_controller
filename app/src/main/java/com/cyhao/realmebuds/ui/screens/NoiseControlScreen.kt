@@ -1,4 +1,4 @@
-﻿package com.cyhao.realmebuds.ui.screens
+package com.cyhao.realmebuds.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -33,6 +33,7 @@ import com.cyhao.realmebuds.data.AncMode
 import com.cyhao.realmebuds.data.BudsViewModel
 import com.cyhao.realmebuds.data.labelRes
 import com.cyhao.realmebuds.ui.components.WearSectionHeader
+import com.cyhao.realmebuds.ui.components.CrownScrollEffect
 
 /**
  * 降噪控制：关闭 / 通透 / 降噪 单选；选中降噪时追加 4 档强度。
@@ -42,6 +43,7 @@ import com.cyhao.realmebuds.ui.components.WearSectionHeader
 fun NoiseControlScreen(vm: BudsViewModel, navController: NavHostController) {
     val state by vm.state.collectAsState()
     val listState = rememberScalingLazyListState()
+    CrownScrollEffect(listState)
     val canControl = state.connected || state.demo
 
     ScreenScaffold(scrollState = listState) { padding ->

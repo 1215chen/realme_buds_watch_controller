@@ -1,4 +1,4 @@
-﻿package com.cyhao.realmebuds.data
+package com.cyhao.realmebuds.data
 
 import com.cyhao.realmebuds.R
 import kotlinx.coroutines.CoroutineScope

@@ -27,14 +27,15 @@
 - **设备信息**：型号、固件版本、蓝牙地址
 - **自动回连**：记住上次设备，打开应用自动连接；掉线后按退避策略重连
 - **演示模式**：没有耳机也能完整体验界面
-- **平台适配**：Wear OS 4/5 已验证；OPPO Watch（ColorOS Watch）为**实验性适配**（minSdk 26 已可安装，表冠滚动 + Vibrator 震动兜底，待更多机型实测）
+- **平台适配**：Wear OS 4/5 已验证；OPPO Watch（ColorOS Watch）自 1.1.1 起支持，OPPO Watch X2 已真机实测可用（表冠滚动 + 震动兜底）
 
 ## 支持的耳机
 
 本项目不是按型号白名单硬编码，而是按 **realme/OPPO 系私有协议**通用适配：
 
 - ✅ **已真机验证**：`realme Buds T200`（降噪/音效/游戏模式/双设备/左右耳手势全部实际生效）
-- ✅ **平台兼容**：Wear OS 4/5 真机验证；OPPO Watch（ColorOS Watch 1/2/3/4）自 1.1.1 起可安装（minSdk 26），表冠/震动做了兼容适配
+- ✅ **已真机验证（OPPO 组合）**：**OPPO Watch X2 + OPPO Enco Air 5 Pro** 实测可用（安装、连接与基础控制正常）
+- ✅ **平台兼容**：Wear OS 4/5 真机验证；OPPO Watch（ColorOS Watch）自 1.1.1 起可安装（minSdk 26），OPPO Watch X2 已实测，表冠/震动做了兼容适配
 - 🟡 **理论支持**：采用同一协议族的 realme TWS（Buds T 系列、Buds Air 系列、Buds Q / Air Neo 等）与部分 OPPO/OnePlus Enco 系列；是否全部可用取决于该型号的命令支持子集，欢迎反馈实测结果
 - ❌ **不支持**：非 realme/OPPO 品牌耳机（只能做标准 BLE 电量/信息读取），以及协议完全不同的头戴/颈挂型号
 

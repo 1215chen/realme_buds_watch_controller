@@ -2,7 +2,9 @@
 
 ## 1. 定位
 
-一款 **Wear OS 4+ 手表端独立应用**（standalone，不依赖手机 App），通过蓝牙直连 realme / OPPO 系 TWS 耳机，在手表上完成常用的耳机控制。
+一款面向 **Wear OS 4/5/6 与 OPPO Watch（ColorOS Watch，Android 8.0+ / API 26+）** 的手表端独立应用（standalone，不依赖手机 App），通过蓝牙直连 realme / OPPO 系 TWS 耳机，在手表上完成常用的耳机控制。
+
+平台兼容：Wear OS 4/5 已真机验证；OPPO Watch X2（ColorOS Watch）已真机验证；`realme Buds T200` 与 `OPPO Enco Air 5 Pro` 耳机组合实测可用。
 
 非目标：不替代手机端 realme Link 的账号体系、云同步、固件 OTA、AI 助手、空间音效等高级功能。
 
@@ -15,7 +17,7 @@
 | 架构 | 单 Activity + Compose Navigation + ViewModel + Repository（StateFlow） |
 | BLE | BluetoothLeScanner + GATT（私有通道自动发现）+ RFCOMM/SPP 兜底 |
 | 输入 | 旋转表冠（RotaryScrollEvent / ACTION_SCROLL / DPAD 按键三种兼容路径） |
-| 触觉 | Wear OS 4+ 用系统 HapticFeedback；ColorOS/旧系统用 Vibrator 兜底 |
+| 触觉 | Wear OS 4+（API 33+）用系统 HapticFeedback；ColorOS Watch / API <33 用 Vibrator 兜底 |
 | 主题 | Material Design 3 蓝色系 ColorScheme（深色基线，无品牌定制色） |
 
 ## 3. 页面与交互
@@ -50,7 +52,8 @@
 ## 6. 验收标准
 
 1. `./gradlew :app:assembleDebug` 构建通过；
-2. Wear OS 4+ 设备/模拟器可启动，圆形表盘无内容截断；
+2. Wear OS 4/5/6 设备/模拟器与 OPPO Watch X2 可启动，圆形/方形表盘无内容截断；
 3. 扫描 → 连接 → 控制 → 断开主流程可用；
 4. 演示模式可完整展示全部页面；
-5. 真机验证（realme Buds T200，2026-11-13）：电量/固件读取、降噪三档、音效切换、游戏模式、双设备连接、左右耳手势实际生效。
+5. 真机验证（Wear OS + realme Buds T200，2026-11-13）：电量/固件读取、降噪三档、音效切换、游戏模式、双设备连接、左右耳手势实际生效；
+6. 真机验证（OPPO Watch X2 + OPPO Enco Air 5 Pro，2026-11-27）：安装、连接与基础控制正常（表冠滚动、震动反馈可用）。
